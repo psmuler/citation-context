@@ -42,6 +42,16 @@ jobs:
 
       - name: Publish deposition
         run: |
-          curl -X POST \
+          echo "Publishing deposition ID: ${{ env.DEPOSIT_ID }}"
+          response=$(curl -s -w "%{http_code}" -o publish_result.json \
+            -X POST \
             -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
-            https://sandbox.zenodo.org/api/deposit/depositions/${{ env.DEPOSIT_ID }}/actions/publish
+            https://sandbox.zenodo.org/api/deposit/depositions/${{ env.DEPOSIT_ID }}/actions/publish)
+
+          echo "HTTP response code: $response"
+          cat publish_result.json
+
+          if [[ "$response" != "202" ]]; then
+            echo "❌ Failed to publish deposition"
+            exit 1
+          fi
