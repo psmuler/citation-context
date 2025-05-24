@@ -26,5 +26,5 @@ jq -c '.metadata.creators[]' metadata.json | while read -r creator; do
   [[ -n "$WEBSITE" ]] && echo "    website: \"$WEBSITE\"" >> authors.yaml
 done
 
-envsubst < .github/template/CITATION_template.cff > CITATION_tmp.cff
-cat CITATION_tmp.cff authors.yaml > CITATION.cff
+envsubst < .github/template/CITATION-template.cff > CITATION-tmp.cff
+cat CITATION-tmp.cff authors.yaml > CITATION.cff
