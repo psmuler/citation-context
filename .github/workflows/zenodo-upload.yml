@@ -28,6 +28,7 @@ jobs:
         run: |
           curl -X PUT \
             -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
+            -H "Content-Type: application/octet-stream" \
             --data-binary @README.pdf \
             "${{ env.BUCKET_URL }}/README.pdf"
 
@@ -35,6 +36,7 @@ jobs:
         run: |
           curl -X PUT \
             -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
+            -H "Content-Type: text/markdown" \
             --data-binary @README.md \
             "${{ env.BUCKET_URL }}/README.md"
 
