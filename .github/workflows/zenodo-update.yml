@@ -3,37 +3,51 @@ name: Update Zenodo Deposition
 on:
   workflow_dispatch:
     inputs:
-      deposition_id:
-        description: "Existing Zenodo Deposition ID"
-        required: true
+      environment:
+        description: "Environment to use (dev or prod)"
+        required: false
+        default: "dev"
 
 jobs:
   update:
     runs-on: ubuntu-latest
     steps:
+      - name: Set environment variables
+        run: |
+          if [[ "${{ github.event.inputs.environment }}" == "prod" ]]; then
+            echo "BASE_URL=https://zenodo.org" >> $GITHUB_ENV
+            echo "TOKEN=${{ secrets.ZENODO_TOKEN }}" >> $GITHUB_ENV
+          else
+            echo "BASE_URL=https://sandbox.zenodo.org" >> $GITHUB_ENV
+            echo "TOKEN=${{ secrets.ZENODO_TOKEN_DEV }}" >> $GITHUB_ENV
+          fi
+
       - name: Checkout repo
         uses: actions/checkout@v3
 
       - name: Create new version
         id: newversion
         run: |
+          DEPOSITION_ID=$(cat .github/token.txt)
+          echo "Using deposition ID from .github/token.txt: $DEPOSITION_ID"
+
           response=$(curl -s -X POST \
-            -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
-            https://zenodo.org/api/deposit/depositions/${{ github.event.inputs.deposition_id }}/actions/newversion)
+            -H "Authorization: Bearer ${{ env.TOKEN }}" \
+            ${{ env.BASE_URL }}/api/deposit/depositions/$DEPOSITION_ID/actions/newversion)
 
           NEW_DRAFT_URL=$(echo $response | jq -r '.links.latest_draft')
           echo "NEW_DRAFT_URL=$NEW_DRAFT_URL"
 
-          NEW_ID=$(basename $NEW_DRAFT_URL)  # ← URLの末尾がID
+          NEW_ID=$(basename $NEW_DRAFT_URL)
           echo "NEW_DEPOSITION_ID=$NEW_ID" >> $GITHUB_ENV
 
       - name: Update metadata for new version
         run: |
           curl -X PUT \
             -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
+            -H "Authorization: Bearer ${{ env.TOKEN }}" \
             -d @metadata.json \
-            https://zenodo.org/api/deposit/depositions/${{ env.NEW_DEPOSITION_ID }} \
+            ${{ env.BASE_URL }}/api/deposit/depositions/${{ env.NEW_DEPOSITION_ID }} \
             > response.json
 
           echo "----- Zenodo API Response -----"
@@ -41,24 +55,24 @@ jobs:
 
       - name: Upload updated PDF
         run: |
-          BUCKET_URL=$(curl -s -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
-            https://zenodo.org/api/deposit/depositions/${{ env.NEW_DEPOSITION_ID }} \
+          BUCKET_URL=$(curl -s -H "Authorization: Bearer ${{ env.TOKEN }}" \
+            ${{ env.BASE_URL }}/api/deposit/depositions/${{ env.NEW_DEPOSITION_ID }} \
             | jq -r .links.bucket)
 
           curl -X PUT \
-            -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
+            -H "Authorization: Bearer ${{ env.TOKEN }}" \
             -H "Content-Type: application/octet-stream" \
             --data-binary @README.pdf \
             "$BUCKET_URL/README.pdf"
       
       - name: Upload updated markdown
         run: |
-          BUCKET_URL=$(curl -s -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
-            https://zenodo.org/api/deposit/depositions/${{ env.NEW_DEPOSITION_ID }} \
+          BUCKET_URL=$(curl -s -H "Authorization: Bearer ${{ env.TOKEN }}" \
+            ${{ env.BASE_URL }}/api/deposit/depositions/${{ env.NEW_DEPOSITION_ID }} \
             | jq -r .links.bucket)
 
           curl -X PUT \
-            -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
+            -H "Authorization: Bearer ${{ env.TOKEN }}" \
             -H "Content-Type: application/octet-stream" \
             --data-binary @README.md \
             "$BUCKET_URL/README.md"
@@ -67,8 +81,8 @@ jobs:
         run: |
           response=$(curl -s -w "%{http_code}" -o publish_result.json \
             -X POST \
-            -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
-            https://zenodo.org/api/deposit/depositions/${{ env.NEW_DEPOSITION_ID }}/actions/publish)
+            -H "Authorization: Bearer ${{ env.TOKEN }}" \
+            ${{ env.BASE_URL }}/api/deposit/depositions/${{ env.NEW_DEPOSITION_ID }}/actions/publish)
 
           echo "HTTP response code: $response"
           cat publish_result.json
