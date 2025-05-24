@@ -39,7 +39,7 @@ jobs:
           echo "----- Zenodo API Response -----"
           cat response.json
 
-          if [[ "$response" != "200" ]]; then
+          if [[ "$response" != "200" && "$response" != "201" ]]; then
             echo "❌ Failed to update metadata"
             exit 1
           fi
