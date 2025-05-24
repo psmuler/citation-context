@@ -1,5 +1,8 @@
 name: Create new Zenodo record
 
+permissions:
+  contents: write
+
 on:
   workflow_dispatch:
     inputs:
@@ -85,3 +88,10 @@ jobs:
           else
             echo "RECORD_ID_DEV=${{ env.DEPOSIT_ID }}" > .github/token.txt
           fi
+      - name: Commit token.txt to repo
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git add .github/token.txt
+          git commit -m "Add token.txt with deposition ID"
+          git push origin HEAD:${GITHUB_REF#refs/heads/}
