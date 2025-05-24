@@ -14,22 +14,21 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Delete existing files
+      - name: Create new version
+        id: newversion
         run: |
-          FILES=$(curl -s -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
-            https://sandbox.zenodo.org/api/deposit/depositions/${{ github.event.inputs.deposition_id }} \
-            | jq -r '.files[].id')
+          response=$(curl -s -X POST \
+            -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
+            https://sandbox.zenodo.org/api/deposit/depositions/${{ github.event.inputs.deposition_id }}/actions/newversion)
 
-          for file_id in $FILES; do
-            curl -X DELETE \
-              -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
-              https://sandbox.zenodo.org/api/deposit/depositions/${{ github.event.inputs.deposition_id }}/files/$file_id
-          done
+          NEW_ID=$(curl -s -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
+            $(echo $response | jq -r '.links.latest_draft') | jq -r '.id')
+          echo "NEW_DEPOSITION_ID=$NEW_ID" >> $GITHUB_ENV
 
       - name: Upload updated PDF
         run: |
           BUCKET_URL=$(curl -s -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
-            https://sandbox.zenodo.org/api/deposit/depositions/${{ github.event.inputs.deposition_id }} \
+            https://sandbox.zenodo.org/api/deposit/depositions/${{ env.NEW_DEPOSITION_ID }} \
             | jq -r .links.bucket)
 
           curl -X PUT \
@@ -43,7 +42,7 @@ jobs:
           response=$(curl -s -w "%{http_code}" -o publish_result.json \
             -X POST \
             -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
-            https://sandbox.zenodo.org/api/deposit/depositions/${{ github.event.inputs.deposition_id }}/actions/publish)
+            https://sandbox.zenodo.org/api/deposit/depositions/${{ env.NEW_DEPOSITION_ID }}/actions/publish)
 
           echo "HTTP response code: $response"
           cat publish_result.json
