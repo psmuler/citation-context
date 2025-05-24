@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -ex
 
 CONCEPTRECID=$(jq -r '.conceptrecid' publish_result.json)
 TITLE=$(jq -r '.metadata.title' metadata.json)
