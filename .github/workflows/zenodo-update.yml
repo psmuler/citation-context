@@ -29,17 +29,22 @@ jobs:
 
       - name: Update metadata for new version
         run: |
-          curl -X PUT \
+          response=$(curl -X PUT \
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
             -d @metadata.json \
             https://sandbox.zenodo.org/api/deposit/depositions/${{ env.NEW_DEPOSITION_ID }} \
-            > response.json
+            > response.json)
 
           echo "----- Zenodo API Response -----"
           echo "HTTP response code: $response"
           cat response.json
-          
+
+          if [[ "$response" != "201" ]]; then
+            echo "❌ Failed to update metadata"
+            exit 1
+          fi
+
       - name: Upload updated PDF
         run: |
           BUCKET_URL=$(curl -s -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
