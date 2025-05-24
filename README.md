@@ -28,19 +28,7 @@ This is a part of the series of co-authored scoping review in GIANT, a research 
 The project leverages one of the most widely used reference management tools Zotero, and integrates doi to provide a co-authored scoping review interface. The reviews cites a lot of literature as a typical literature review does, but the interesting thing is that the review itself immediately obtain DOI so that other literature or scoping reviews can cite them. The reviews structure itself into hierarchical, yet interlaced knowledge of science.
 
 # Citation
-The above DOI corresponds to one of the versioned release as [published to Zenodo](https://zenodo.org/records/15497889), where you will find all earlier releases. To cite `citation-context` independent of version, use https://doi.org/10.5281/zenodo.15497889, which will always redirect to the latest release.
-```bibtex
-@misc{doi:10.5281/zenodo.15497889,
-  author       = {Chiaki Miura},
-  title        = {citation-context},
-  month        = may,
-  year         = 2025,
-  publisher    = {Zenodo},
-  version      = {v0.1.0},
-  doi          = {10.5281/zenodo.15497889},
-  url          = {https://doi.org/10.5281/zenodo.15497889}
-}
-```
+To cite this work, refer to Zenodo's "Citation" or GitHub's "Cite this repository" under the "About" section of the repository.
 
 # Acknowledgement
 The project is supported by ACT-X  Japan Science and Technology Agency, Grant Number JPMJAX24CP, Japan

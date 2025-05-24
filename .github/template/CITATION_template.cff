@@ -1,10 +1,5 @@
 cff-version: 1.1.0
-message: "$CFF_MESSAGE"
-authors:
-  - family-names: Miura
-    given-names: Chiaki
-    orcid: https://orcid.org/0009-0009-6492-0985
-    affiliation: "The University of Tokyo"
-    website: https://researchmap.jp/muler?lang=en
+type: article
+message: "If you use this software, please cite it as below."
 title: "$CFF_TITLE"
 doi: "10.5281/zenodo.$ISSUED_DOI"

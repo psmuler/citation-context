@@ -85,16 +85,7 @@ jobs:
           fi
 
       - name: Generate CITATION.cff from template and metadata
-        run: |
-          CONCEPTRECID=$(jq -r '.conceptrecid' publish_result.json)
-          TITLE=$(jq -r '.metadata.title' metadata.json)
-          MESSAGE="Cite as: Miura, C. (2025). ${TITLE}. Zenodo. https://doi.org/10.5281/zenodo.${CONCEPTRECID}"
-
-          export ISSUED_DOI=$CONCEPTRECID
-          export CFF_TITLE="$TITLE"
-          export CFF_MESSAGE="$MESSAGE"
-
-          envsubst < .github/template/CITATION_template.cff > CITATION.cff
+        run: .github/scripts/generate_citation.sh
 
       - name: Write record_id file with RECORD_ID
         run: |

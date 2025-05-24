@@ -1,0 +1,18 @@
+{
+    "metadata": {
+        "title": "Citation Context Analysis",
+        "upload_type": "publication",
+        "publication_type": "article",
+        "version": "0.0.0",
+        "publication_date": "2025-05-24",
+        "description": "description",
+        "creators": [
+            {
+                "name": "Miura, Chiaki",
+                "affiliation": "University of Tokyo",
+                "orcid": "https://orcid.org/0009-0009-6492-0985",
+                "website": "https://researchmap.jp/muler?lang=en"
+            }
+        ]
+    }
+}
