@@ -16,7 +16,7 @@ jobs:
           curl -s -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d @metadata.json \
-            https://sandbox.zenodo.org/api/deposit/depositions \
+            https://zenodo.org/api/deposit/depositions \
             > response.json
 
           echo "DEPOSIT_ID=$(jq -r .id response.json)" >> $GITHUB_ENV
@@ -24,7 +24,7 @@ jobs:
 
           echo "----- Zenodo API Response -----"
           cat response.json
-          
+
       - name: Upload PDF
         run: |
           curl -X PUT \
@@ -47,7 +47,7 @@ jobs:
           response=$(curl -s -w "%{http_code}" -o publish_result.json \
             -X POST \
             -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
-            https://sandbox.zenodo.org/api/deposit/depositions/${{ env.DEPOSIT_ID }}/actions/publish)
+            https://zenodo.org/api/deposit/depositions/${{ env.DEPOSIT_ID }}/actions/publish)
 
           echo "HTTP response code: $response"
           cat publish_result.json

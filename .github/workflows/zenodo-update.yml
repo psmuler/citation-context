@@ -19,7 +19,7 @@ jobs:
         run: |
           response=$(curl -s -X POST \
             -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
-            https://sandbox.zenodo.org/api/deposit/depositions/${{ github.event.inputs.deposition_id }}/actions/newversion)
+            https://zenodo.org/api/deposit/depositions/${{ github.event.inputs.deposition_id }}/actions/newversion)
 
           NEW_DRAFT_URL=$(echo $response | jq -r '.links.latest_draft')
           echo "NEW_DRAFT_URL=$NEW_DRAFT_URL"
@@ -33,7 +33,7 @@ jobs:
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
             -d @metadata.json \
-            https://sandbox.zenodo.org/api/deposit/depositions/${{ env.NEW_DEPOSITION_ID }} \
+            https://zenodo.org/api/deposit/depositions/${{ env.NEW_DEPOSITION_ID }} \
             > response.json
 
           echo "----- Zenodo API Response -----"
@@ -42,7 +42,7 @@ jobs:
       - name: Upload updated PDF
         run: |
           BUCKET_URL=$(curl -s -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
-            https://sandbox.zenodo.org/api/deposit/depositions/${{ env.NEW_DEPOSITION_ID }} \
+            https://zenodo.org/api/deposit/depositions/${{ env.NEW_DEPOSITION_ID }} \
             | jq -r .links.bucket)
 
           curl -X PUT \
@@ -56,7 +56,7 @@ jobs:
           response=$(curl -s -w "%{http_code}" -o publish_result.json \
             -X POST \
             -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
-            https://sandbox.zenodo.org/api/deposit/depositions/${{ env.NEW_DEPOSITION_ID }}/actions/publish)
+            https://zenodo.org/api/deposit/depositions/${{ env.NEW_DEPOSITION_ID }}/actions/publish)
 
           echo "HTTP response code: $response"
           cat publish_result.json
