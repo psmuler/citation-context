@@ -24,6 +24,7 @@ jobs:
 
           echo "----- Zenodo API Response -----"
           cat response.json
+          
       - name: Upload PDF
         run: |
           curl -X PUT \
