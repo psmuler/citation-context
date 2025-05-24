@@ -1,0 +1,10 @@
+cff-version: 1.1.0
+type: article
+message: "If you use this software, please cite it as below."
+title: "Citation Context Analysis"
+doi: "10.5281/zenodo.260643"
+authors:
+  - family-names: "Miura"
+    given-names: "Chiaki"
+    affiliation: "University of Tokyo"
+    orcid: "https://orcid.org/0009-0009-6492-0985"
