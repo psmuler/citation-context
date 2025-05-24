@@ -1,0 +1,54 @@
+name: Update Zenodo Deposition
+
+on:
+  workflow_dispatch:
+    inputs:
+      deposition_id:
+        description: "Existing Zenodo Deposition ID"
+        required: true
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Delete existing files
+        run: |
+          FILES=$(curl -s -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
+            https://sandbox.zenodo.org/api/deposit/depositions/${{ github.event.inputs.deposition_id }} \
+            | jq -r '.files[].id')
+
+          for file_id in $FILES; do
+            curl -X DELETE \
+              -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
+              https://sandbox.zenodo.org/api/deposit/depositions/${{ github.event.inputs.deposition_id }}/files/$file_id
+          done
+
+      - name: Upload updated PDF
+        run: |
+          BUCKET_URL=$(curl -s -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
+            https://sandbox.zenodo.org/api/deposit/depositions/${{ github.event.inputs.deposition_id }} \
+            | jq -r .links.bucket)
+
+          curl -X PUT \
+            -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
+            -H "Content-Type: application/octet-stream" \
+            --data-binary @README.pdf \
+            "$BUCKET_URL/README.pdf"
+
+      - name: Publish updated deposition
+        run: |
+          response=$(curl -s -w "%{http_code}" -o publish_result.json \
+            -X POST \
+            -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
+            https://sandbox.zenodo.org/api/deposit/depositions/${{ github.event.inputs.deposition_id }}/actions/publish)
+
+          echo "HTTP response code: $response"
+          cat publish_result.json
+
+          if [[ "$response" != "202" ]]; then
+            echo "❌ Failed to publish updated deposition"
+            exit 1
+          fi
