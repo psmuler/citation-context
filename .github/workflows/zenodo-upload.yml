@@ -1,0 +1,43 @@
+name: Upload to Zenodo
+
+on:
+  workflow_dispatch:  # 手動で実行
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Upload metadata to Zenodo
+        id: metadata
+        run: |
+          curl -s -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d @metadata.json \
+            https://zenodo.org/api/deposit/depositions \
+            > response.json
+
+          echo "DEPOSIT_ID=$(jq -r .id response.json)" >> $GITHUB_ENV
+          echo "BUCKET_URL=$(jq -r .links.bucket response.json)" >> $GITHUB_ENV
+
+      - name: Upload PDF
+        run: |
+          curl -X PUT \
+            -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
+            --data-binary @paper.pdf \
+            "${{ env.BUCKET_URL }}/paper.pdf"
+
+      - name: Upload Markdown (optional)
+        run: |
+          curl -X PUT \
+            -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
+            --data-binary @main.md \
+            "${{ env.BUCKET_URL }}/main.md"
+
+      - name: Publish deposition
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
+            https://zenodo.org/api/deposit/depositions/${{ env.DEPOSIT_ID }}/actions/publish
