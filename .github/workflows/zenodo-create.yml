@@ -21,16 +21,17 @@ jobs:
         run: |
           if [[ "${{ github.event.inputs.environment }}" == "prod" ]]; then
             echo "BASE_URL=https://zenodo.org" >> $GITHUB_ENV
-            echo "TOKEN=${{ secrets.ZENODO_TOKEN }}" >> $GITHUB_ENV
+            echo "${{ secrets.ZENODO_TOKEN }}" >> $GITHUB_ENV
           else
             echo "BASE_URL=https://sandbox.zenodo.org" >> $GITHUB_ENV
-            echo "TOKEN=${{ secrets.ZENODO_TOKEN_DEV }}" >> $GITHUB_ENV
+            echo "${{ secrets.ZENODO_TOKEN_DEV }}" >> $GITHUB_ENV
           fi
 
-      - name: Check for existing token.txt
+      - name: Check for existing environment-specific token
         run: |
-          if [[ -f ".github/token.txt" ]]; then
-            echo "❌ .github/token.txt already exists. Aborting to avoid overwrite."
+          FILE=".github/token-${{ github.event.inputs.environment }}.txt"
+          if [[ -f "$FILE" ]]; then
+            echo "❌ $FILE already exists. Aborting."
             exit 1
           fi
 
@@ -81,17 +82,19 @@ jobs:
             exit 1
           fi
 
-      - name: Write token.txt with RECORD_ID
+      - name: Write token file with RECORD_ID
         run: |
+          FILE=".github/token-${{ github.event.inputs.environment }}.txt"
           if [[ "${{ github.event.inputs.environment }}" == "prod" ]]; then
-            echo "RECORD_ID=${{ env.DEPOSIT_ID }}" > .github/token.txt
+            echo "RECORD_ID=${{ env.DEPOSIT_ID }}" > "$FILE"
           else
-            echo "RECORD_ID_DEV=${{ env.DEPOSIT_ID }}" > .github/token.txt
+            echo "RECORD_ID_DEV=${{ env.DEPOSIT_ID }}" > "$FILE"
           fi
-      - name: Commit token.txt to repo
+      - name: Commit token file to repo
         run: |
+          FILE=".github/token-${{ github.event.inputs.environment }}.txt"
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"
-          git add .github/token.txt
-          git commit -m "Add token.txt with deposition ID"
+          git add "$FILE"
+          git commit -m "Add $FILE with deposition ID"
           git push origin HEAD:${GITHUB_REF#refs/heads/}
