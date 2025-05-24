@@ -24,7 +24,8 @@ jobs:
           else
             echo "BASE_URL=https://sandbox.zenodo.org" >> $GITHUB_ENV
             echo "TOKEN=${{ secrets.ZENODO_TOKEN_DEV }}" >> $GITHUB_ENV
-            DEPOSITION_ID=$(cat .github/token-prod.txt)          fi
+            DEPOSITION_ID=$(cat .github/token-prod.txt)
+          fi
           echo "DEPOSITION_ID=$DEPOSITION_ID" >> $GITHUB_ENV
 
       - name: Create new version
