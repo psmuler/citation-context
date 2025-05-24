@@ -17,10 +17,13 @@ jobs:
           if [[ "${{ github.event.inputs.environment }}" == "prod" ]]; then
             echo "BASE_URL=https://zenodo.org" >> $GITHUB_ENV
             echo "TOKEN=${{ secrets.ZENODO_TOKEN }}" >> $GITHUB_ENV
+            DEPOSITION_ID=$(grep "^RECORD_ID=" .github/token.txt | cut -d '=' -f2)
           else
             echo "BASE_URL=https://sandbox.zenodo.org" >> $GITHUB_ENV
             echo "TOKEN=${{ secrets.ZENODO_TOKEN_DEV }}" >> $GITHUB_ENV
+            DEPOSITION_ID=$(grep "^RECORD_ID_DEV=" .github/token.txt | cut -d '=' -f2)
           fi
+          echo "DEPOSITION_ID=$DEPOSITION_ID" >> $GITHUB_ENV
 
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -28,12 +31,11 @@ jobs:
       - name: Create new version
         id: newversion
         run: |
-          DEPOSITION_ID=$(cat .github/token.txt)
-          echo "Using deposition ID from .github/token.txt: $DEPOSITION_ID"
+          echo "Using deposition ID: $DEPOSITION_ID"
 
           response=$(curl -s -X POST \
             -H "Authorization: Bearer ${{ env.TOKEN }}" \
-            ${{ env.BASE_URL }}/api/deposit/depositions/$DEPOSITION_ID/actions/newversion)
+            ${{ env.BASE_URL }}/api/deposit/depositions/${{ env.DEPOSITION_ID }}/actions/newversion)
 
           NEW_DRAFT_URL=$(echo $response | jq -r '.links.latest_draft')
           echo "NEW_DRAFT_URL=$NEW_DRAFT_URL"
