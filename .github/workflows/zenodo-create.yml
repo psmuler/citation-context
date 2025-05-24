@@ -85,7 +85,7 @@ jobs:
           fi
 
       - name: Generate CITATION.cff from template and metadata
-        run: .github/scripts/generate_citation.sh
+        run: .github/scripts/generate-citation.sh
 
       - name: Write record_id file with RECORD_ID
         run: |
