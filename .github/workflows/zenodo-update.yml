@@ -50,6 +50,18 @@ jobs:
             -H "Content-Type: application/octet-stream" \
             --data-binary @README.pdf \
             "$BUCKET_URL/README.pdf"
+      
+      - name: Upload updated markdown
+        run: |
+          BUCKET_URL=$(curl -s -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
+            https://zenodo.org/api/deposit/depositions/${{ env.NEW_DEPOSITION_ID }} \
+            | jq -r .links.bucket)
+
+          curl -X PUT \
+            -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
+            -H "Content-Type: application/octet-stream" \
+            --data-binary @README.md \
+            "$BUCKET_URL/README.md"
 
       - name: Publish updated deposition
         run: |
