@@ -21,10 +21,10 @@ jobs:
         run: |
           if [[ "${{ github.event.inputs.environment }}" == "prod" ]]; then
             echo "BASE_URL=https://zenodo.org" >> $GITHUB_ENV
-            echo "${{ secrets.ZENODO_TOKEN }}" >> $GITHUB_ENV
+            echo "TOKEN=$(cat .github/token-prod.txt)" >> $GITHUB_ENV
           else
             echo "BASE_URL=https://sandbox.zenodo.org" >> $GITHUB_ENV
-            echo "${{ secrets.ZENODO_TOKEN_DEV }}" >> $GITHUB_ENV
+            echo "TOKEN=$(cat .github/token-dev.txt)" >> $GITHUB_ENV
           fi
 
       - name: Check for existing environment-specific token
@@ -85,11 +85,8 @@ jobs:
       - name: Write token file with RECORD_ID
         run: |
           FILE=".github/token-${{ github.event.inputs.environment }}.txt"
-          if [[ "${{ github.event.inputs.environment }}" == "prod" ]]; then
-            echo "RECORD_ID=${{ env.DEPOSIT_ID }}" > "$FILE"
-          else
-            echo "RECORD_ID_DEV=${{ env.DEPOSIT_ID }}" > "$FILE"
-          fi
+          echo "${{ env.DEPOSIT_ID }}" > "$FILE"
+
       - name: Commit token file to repo
         run: |
           FILE=".github/token-${{ github.event.inputs.environment }}.txt"
