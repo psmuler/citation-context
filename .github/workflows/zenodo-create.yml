@@ -84,14 +84,14 @@ jobs:
             exit 1
           fi
 
-      - name: Create CITATION.cff from DOI
+      - name: Generate CITATION.cff
         run: |
-          DOI=$(jq -r .doi publish_result.json)
-          echo "Generating CITATION.cff for DOI $DOI"
+          CONCEPTRECID=$(jq -r '.conceptrecid' publish_result.json)
+          echo "Creating CITATION.cff with DOI: 10.5281/zenodo.$CONCEPTRECID"
 
           cat <<EOF > CITATION.cff
           cff-version: 1.1.0
-          message: "Cite as: Miura, C. (2023). Citation Context Analysis. Zenodo. https://doi.org/$DOI"
+          message: "Cite as: Miura, C. (2023). Citation Context Analysis. Zenodo. https://doi.org/10.5281/zenodo.$CONCEPTRECID"
           authors:
             - family-names: Miura
               given-names: Chiaki
@@ -99,7 +99,7 @@ jobs:
               affiliation: "The University of Tokyo"
               website: https://researchmap.jp/muler?lang=en
           title: "Citation Context Analysis"
-          doi: "$DOI"
+          doi: "10.5281/zenodo.$CONCEPTRECID"
           EOF
 
       - name: Write record_id file with RECORD_ID
@@ -111,5 +111,5 @@ jobs:
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"
           git add "${{ env.FILE }}" CITATION.cff
-          git commit -m "Add ${{ env.FILE }} and CITATION.cff with deposition ID"
+          git commit -m "Add ${{ env.FILE }} and CITATION.cff"
           git push origin HEAD:${GITHUB_REF#refs/heads/}
