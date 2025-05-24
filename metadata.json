@@ -3,7 +3,7 @@
         "title": "Citation Context Analysis",
         "upload_type": "publication",
         "publication_type": "article",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "publication_date": "2025-05-24",
         "description": "Citation context analyisis is a subfield of bibliometrics that focuses on the text information surrounding citations instead of the statistical nature of other bibliographic metrics. This includes, though not limited to, the study of the detection and classification of the citation. This is a scoping review of the literature on citation context analysis. The goal is to provide a comprehensive overview of the concurrent approaches, methods, and tools used in this field.",
         "creators": [
