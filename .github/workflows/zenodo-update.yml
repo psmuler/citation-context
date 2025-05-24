@@ -12,6 +12,9 @@ jobs:
   update:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repo
+          uses: actions/checkout@v3
+          
       - name: Set environment variables
         run: |
           if [[ "${{ github.event.inputs.environment }}" == "prod" ]]; then
@@ -24,9 +27,6 @@ jobs:
             DEPOSITION_ID=$(grep "^RECORD_ID_DEV=" .github/token.txt | cut -d '=' -f2)
           fi
           echo "DEPOSITION_ID=$DEPOSITION_ID" >> $GITHUB_ENV
-
-      - name: Checkout repo
-        uses: actions/checkout@v3
 
       - name: Create new version
         id: newversion
