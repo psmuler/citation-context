@@ -84,23 +84,17 @@ jobs:
             exit 1
           fi
 
-      - name: Generate CITATION.cff
+      - name: Generate CITATION.cff from template and metadata
         run: |
           CONCEPTRECID=$(jq -r '.conceptrecid' publish_result.json)
-          echo "Creating CITATION.cff with DOI: 10.5281/zenodo.$CONCEPTRECID"
+          TITLE=$(jq -r '.metadata.title' metadata.json)
+          MESSAGE="Cite as: Miura, C. (2025). ${TITLE}. Zenodo. https://doi.org/10.5281/zenodo.${CONCEPTRECID}"
 
-          cat <<EOF > CITATION.cff
-          cff-version: 1.1.0
-          message: "Cite as: Miura, C. (2023). Citation Context Analysis. Zenodo. https://doi.org/10.5281/zenodo.$CONCEPTRECID"
-          authors:
-            - family-names: Miura
-              given-names: Chiaki
-              orcid: https://orcid.org/0009-0009-6492-0985
-              affiliation: "The University of Tokyo"
-              website: https://researchmap.jp/muler?lang=en
-          title: "Citation Context Analysis"
-          doi: "10.5281/zenodo.$CONCEPTRECID"
-          EOF
+          export ISSUED_DOI=$CONCEPTRECID
+          export CFF_TITLE="$TITLE"
+          export CFF_MESSAGE="$MESSAGE"
+
+          envsubst < .github/template/CITATION_template.cff > CITATION.cff
 
       - name: Write record_id file with RECORD_ID
         run: |
@@ -111,5 +105,5 @@ jobs:
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"
           git add "${{ env.FILE }}" CITATION.cff
-          git commit -m "Add ${{ env.FILE }} and CITATION.cff"
+          git commit -m "Add ${{ env.FILE }} with deposition ID"
           git push origin HEAD:${GITHUB_REF#refs/heads/}
