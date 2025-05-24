@@ -23,7 +23,7 @@ jobs:
 
           NEW_DRAFT_URL=$(echo $response | jq -r '.links.latest_draft')
           echo "NEW_DRAFT_URL=$NEW_DRAFT_URL"
-          
+
           NEW_ID=$(basename $NEW_DRAFT_URL)  # ← URLの末尾がID
           echo "NEW_DEPOSITION_ID=$NEW_ID" >> $GITHUB_ENV
 
@@ -33,11 +33,16 @@ jobs:
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
             -d @metadata.json \
-            https://sandbox.zenodo.org/api/deposit/depositions/${{ env.NEW_DEPOSITION_ID }}
+            https://sandbox.zenodo.org/api/deposit/depositions/${{ env.NEW_DEPOSITION_ID }} \
+            > response.json
 
           echo "----- Zenodo API Response -----"
           cat response.json
 
+          if [[ "$response" != "200" ]]; then
+            echo "❌ Failed to update metadata"
+            exit 1
+          fi
       - name: Upload updated PDF
         run: |
           BUCKET_URL=$(curl -s -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
