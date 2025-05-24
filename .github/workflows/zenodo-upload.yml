@@ -16,7 +16,7 @@ jobs:
           curl -s -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d @metadata.json \
-            https://zenodo.org/api/deposit/depositions \
+            https://sandbox.zenodo.org/api/deposit/depositions \
             > response.json
 
           echo "DEPOSIT_ID=$(jq -r .id response.json)" >> $GITHUB_ENV
@@ -26,8 +26,8 @@ jobs:
         run: |
           curl -X PUT \
             -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
-            --data-binary @paper.pdf \
-            "${{ env.BUCKET_URL }}/paper.pdf"
+            --data-binary @README.pdf \
+            "${{ env.BUCKET_URL }}/README.pdf"
 
       - name: Upload Markdown (optional)
         run: |
@@ -40,4 +40,4 @@ jobs:
         run: |
           curl -X POST \
             -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
-            https://zenodo.org/api/deposit/depositions/${{ env.DEPOSIT_ID }}/actions/publish
+            https://sandbox.zenodo.org/api/deposit/depositions/${{ env.DEPOSIT_ID }}/actions/publish
