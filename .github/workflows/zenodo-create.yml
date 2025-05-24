@@ -1,14 +1,25 @@
-name: Upload to Zenodo
+name: Create new Zenodo record
 
 on:
-  workflow_dispatch:  # 手動で実行
-
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to use (dev or prod)"
+        required: false
+        default: "dev"
 jobs:
-  upload:
+  creat:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
+
+      - name: Check for existing token.txt
+        run: |
+          if [[ -f ".github/token.txt" ]]; then
+            echo "❌ .github/token.txt already exists. Aborting to avoid overwrite."
+            exit 1
+          fi
 
       - name: Upload metadata to Zenodo
         id: metadata
@@ -55,4 +66,12 @@ jobs:
           if [[ "$response" != "202" ]]; then
             echo "❌ Failed to publish deposition"
             exit 1
+          fi
+
+      - name: Write token.txt with RECORD_ID
+        run: |
+          if [[ "${{ github.event.inputs.environment }}" == "prod" ]]; then
+            echo "RECORD_ID=${{ env.DEPOSIT_ID }}" > .github/token.txt
+          else
+            echo "RECORD_ID_DEV=${{ env.DEPOSIT_ID }}" > .github/token.txt
           fi
