@@ -22,6 +22,8 @@ jobs:
           echo "DEPOSIT_ID=$(jq -r .id response.json)" >> $GITHUB_ENV
           echo "BUCKET_URL=$(jq -r .links.bucket response.json)" >> $GITHUB_ENV
 
+          echo "----- Zenodo API Response -----"
+          cat response.json
       - name: Upload PDF
         run: |
           curl -X PUT \
@@ -33,8 +35,8 @@ jobs:
         run: |
           curl -X PUT \
             -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
-            --data-binary @main.md \
-            "${{ env.BUCKET_URL }}/main.md"
+            --data-binary @README.md \
+            "${{ env.BUCKET_URL }}/README.md"
 
       - name: Publish deposition
         run: |
