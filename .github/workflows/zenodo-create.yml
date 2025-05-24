@@ -21,15 +21,15 @@ jobs:
         run: |
           if [[ "${{ github.event.inputs.environment }}" == "prod" ]]; then
             echo "BASE_URL=https://zenodo.org" >> $GITHUB_ENV
-            echo "TOKEN=$(cat .github/token-prod.txt)" >> $GITHUB_ENV
+            echo "TOKEN=${{ secrets.ZENODO_TOKEN }}" >> $GITHUB_ENV
           else
             echo "BASE_URL=https://sandbox.zenodo.org" >> $GITHUB_ENV
-            echo "TOKEN=$(cat .github/token-dev.txt)" >> $GITHUB_ENV
+            echo "TOKEN=${{ secrets.ZENODO_TOKEN_DEV }}" >> $GITHUB_ENV
           fi
 
-      - name: Check for existing environment-specific token
+      - name: Check for existing environment-specific record_id
         run: |
-          FILE=".github/token-${{ github.event.inputs.environment }}.txt"
+          FILE=".github/record_id-${{ github.event.inputs.environment }}.txt"
           if [[ -f "$FILE" ]]; then
             echo "❌ $FILE already exists. Aborting."
             exit 1
@@ -82,14 +82,14 @@ jobs:
             exit 1
           fi
 
-      - name: Write token file with RECORD_ID
+      - name: Write record_id file with RECORD_ID
         run: |
-          FILE=".github/token-${{ github.event.inputs.environment }}.txt"
+          FILE=".github/record_id-${{ github.event.inputs.environment }}.txt"
           echo "${{ env.DEPOSIT_ID }}" > "$FILE"
 
-      - name: Commit token file to repo
+      - name: Commit record_id file to repo
         run: |
-          FILE=".github/token-${{ github.event.inputs.environment }}.txt"
+          FILE=".github/record_id-${{ github.event.inputs.environment }}.txt"
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"
           git add "$FILE"

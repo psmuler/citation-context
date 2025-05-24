@@ -19,12 +19,12 @@ jobs:
         run: |
           if [[ "${{ github.event.inputs.environment }}" == "prod" ]]; then
             echo "BASE_URL=https://zenodo.org" >> $GITHUB_ENV
-            echo "TOKEN=$(cat .github/token-prod.txt)" >> $GITHUB_ENV
-            DEPOSITION_ID=$(grep "^RECORD_ID=" .github/token-prod.txt | cut -d '=' -f2)
+            echo "TOKEN=${{ secrets.ZENODO_TOKEN }}" >> $GITHUB_ENV
+            DEPOSITION_ID=$(grep "^RECORD_ID=" .github/record_id-prod.txt | cut -d '=' -f2)
           else
             echo "BASE_URL=https://sandbox.zenodo.org" >> $GITHUB_ENV
-            echo "TOKEN=$(cat .github/token-dev.txt)" >> $GITHUB_ENV
-            DEPOSITION_ID=$(grep "^RECORD_ID_DEV=" .github/token-dev.txt | cut -d '=' -f2)
+            echo "TOKEN=${{ secrets.ZENODO_TOKEN_DEV }}" >> $GITHUB_ENV
+            DEPOSITION_ID=$(grep "^RECORD_ID_DEV=" .github/record_id-dev.txt | cut -d '=' -f2)
           fi
           echo "DEPOSITION_ID=$DEPOSITION_ID" >> $GITHUB_ENV
 
